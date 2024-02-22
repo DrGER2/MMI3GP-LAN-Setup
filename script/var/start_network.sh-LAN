@@ -1,0 +1,34 @@
+#!/bin/ksh
+# ----------------------------------------------------------------------
+#   Project    : Harman Car Multimedia System
+#   (c) copyright 2006
+#   Harman/becker Automotive Systems GmbH
+#   All rights reserved
+#
+#   File      : Startup network script
+#   Author    : Robert Klarer
+#   
+#  Preconditions:
+#  These services can be started late, to prevent delay of any other services at boot-up
+#   
+# ----------------------------------------------------------------------
+
+# 20230216 drger; Static IP on wired interface en5
+IPADDR=192.168.0.2
+NETMASK=255.255.255.0
+BRDCAST=192.168.0.255
+GATEWAY=192.168.0.1
+DNS1=192.168.0.1
+DNS2=8.8.4.4
+if [ ! -f /HBpersistence/usedhcp ]; then
+  /sbin/ifconfig en5 inet $IPADDR netmask $NETMASK broadcast $BRDCAST
+  /sbin/route delete default
+  /sbin/route add default $GATEWAY
+  /usr/bin/setconf _CS_RESOLVE "nameserver_$DNS1
+    nameserver_$DNS2"
+fi
+
+echo "[>>> Start late networking services (inetd, devc-pty) in start_network.sh ... <<<]"
+
+/sbin/devc-pty &
+/usr/sbin/inetd &

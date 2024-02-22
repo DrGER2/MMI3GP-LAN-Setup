@@ -1,0 +1,70 @@
+#/*********************************************************************
+# * Project        Wireless Communication for Mobile Equipment (WICOME)
+# * (c) Copyright  2010
+# * Company        Harman/Becker Automotive Systems GmbH
+# *-------------------------------------------------------------------*/
+#/**
+# * @file
+# * @author        Peter Gaus
+# * @author        Juergen Lachmann
+# * @author        Robert Klarer
+# * @brief         Packet filter configuration file.
+# *
+# * See pf.conf(5) and /usr/share/examples/pf for syntax and examples.
+# * Remember to set net.inet.ip.forwarding=1 and/or net.inet6.ip6.forwarding=1
+# * in /etc/sysctl.conf if packets are to be forwarded between interfaces.
+# *
+# * @see http://www.qnx.com/developers/docs/6.4.0/neutrino/utilities/p/pf.conf.html
+# * @see http://www.netbsd.org/docs/network/pf.html
+# * @see http://netbsd.gw.com/cgi-bin/man-cgi?pf.conf++NetBSD-4.0
+# *********************************************************************/
+
+int_if = "en5"
+icmp_types = "echoreq"
+broadcast_add = "255.255.255.255/32"
+
+# scrub
+scrub in all no-df
+
+# outgoing connections on MOST must not exceed 968 segmentsize (MTU 1008 total)
+scrub out on mam0 max-mss 968
+
+# Skip all PF filtering on lo0
+set skip on lo0
+
+### NAT/redirection rules 
+### table name has to be used in SW to alter table
+table <natRangeTable> { 192.168.1.0/24, 10.0.0.101 }
+nat on en5 from <natRangeTable> to any -> (en5)
+
+### DNS Redirect rules ?
+rdr on mam0 inet proto udp from (mam0:network) to 10.0.2.100 port domain -> 192.168.0.1
+rdr on uap0 inet proto udp from (uap0:network) to 192.168.1.100 port domain -> 192.168.0.1
+
+### filter rules
+pass out keep state
+
+pass in quick on mam0 keep state
+pass in quick on mep0 keep state
+pass in quick on mhp0 keep state
+pass in quick on en5 keep state
+#pass in quick on uap0 keep state
+#block in on uap0
+
+#block in quick on uap0 from any to (mam0:network) 
+#block in quick on uap0 from any to (mhp0:network) 
+#block in quick on uap0 from any to (en5:network) 
+
+# pass through DHCP from WLAN to DHCP server
+pass in quick on uap0 proto udp from any port bootpc to $broadcast_add port bootps keep state
+pass in quick on uap0 to $broadcast_add keep state
+
+# pass in SSDP messages (out is not blocked)
+pass in quick on uap0 proto udp from any to 239.255.255.250 port 1900 keep state
+
+# let our http server on 8100 for UPnP be reachable
+pass in quick on uap0 proto tcp from any to any port 8100 keep state
+pass in quick on uap0 from any to 224.0.0.0/4 keep state
+pass in quick on uap0 proto udp to (uap0) port 49152:65535
+
+pass in quick inet proto icmp all icmp-type $icmp_types keep state

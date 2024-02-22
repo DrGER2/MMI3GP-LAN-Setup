@@ -1,0 +1,5 @@
+# * (c) Copyright  2008
+# * Company        Harman/Becker Automotive Systems GmbH
+# 20221210 drger; Change 136.40.1.111 (dns1.uni-ulm.de) to 192.168.0.1
+
+rdr on uap0 inet proto udp from (uap0:network) to 192.168.1.101 port domain -> 192.168.0.1

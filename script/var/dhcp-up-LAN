@@ -1,0 +1,22 @@
+#!/bin/sh
+# * (c) Copyright  2008
+# * Company        Harman/Becker Automotive Systems GmbH
+
+# 20230218 drger; LTE DHCP server supplied network settings
+# 20221209 drger; Update for post 3G data reality
+
+waitfor /dev/shmem/networkscript.semaphore 6
+rm /dev/shmem/networkscript.semaphore
+
+# Reset /etc/resolv.conf from remote DHCP server
+if [ -f /etc/resolv.conf ]; then
+  rm /etc/resolv.conf
+  touch /etc/resolv.conf
+fi
+test -n "$NAMESERVER1" && echo "nameserver $NAMESERVER1" >> /etc/resolv.conf
+test -n "$NAMESERVER2" && echo "nameserver $NAMESERVER2" >> /etc/resolv.conf
+test -n "$NAMESERVER3" && echo "nameserver $NAMESERVER3" >> /etc/resolv.conf
+test -n "$NAMESERVER4" && echo "nameserver $NAMESERVER4" >> /etc/resolv.conf
+setconf _CS_RESOLVE ""
+
+touch /dev/shmem/networkscript.semaphore

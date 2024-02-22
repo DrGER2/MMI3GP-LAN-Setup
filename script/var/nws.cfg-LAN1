@@ -1,0 +1,108 @@
+#CFG V1.0 UTF-8;
+
+# 20221211 drger; Update for DLink LTE router config
+
+# **********************************
+# [SCP] system configuration values
+# **********************************
+# date of last change: 15.07.2008
+
+#SAM.ChannelNames = HostAgent, AliveService, RmssService, ConfigService, NetworkingService
+
+# --------------------------------------------------------------------
+# MonitorService
+# --------------------------------------------------------------------
+#MonitorService.LogMode = 2
+#MonitorService.Port = 2022
+#MonitorService.MonitoringEnable = 1
+#MonitorService.ReceiveEnable = 1
+#MonitorService.HeaderEnable = 1
+
+# --------------------------------------------------------------------
+# Traces to Trace Client
+# --------------------------------------------------------------------
+MonitorService.LogMode = 1
+MonitorService.MessageBufferSize = 1000
+MonitorService.TimestampEnable = 1
+MonitorService.LogFileSize = -1
+MonitorService.LogFileName = /hbsystem/multicore/navi/N
+MonitorService.MessageBufferMemory = 51200
+MonitorService.MonitoringEnable = 1
+MonitorService.HeaderEnable = 1
+MonitorService.LinefeedEnable = 1
+MonitorService.FileHeaderEnable = 0
+
+# --------------------------------------------------------------------
+# Traces to Logfile on Target
+# --------------------------------------------------------------------
+#MonitorService.LogMode = 3
+#MonitorService.MessageBufferSize = 1000
+#MonitorService.TimestampEnable = 1
+#MonitorService.LogFileSize = 1024000
+#MonitorService.LogFileName = /tmp/logfile
+#MonitorService.MessageBufferMemory = 51200
+#MonitorService.MonitoringEnable = 1
+#MonitorService.HeaderEnable = 1
+#MonitorService.LinefeedEnable = 1
+#MonitorService.FileHeaderEnable = 0
+# max msg queue (tmp solution)
+#SSS_GCFRouter.MsgQueueSize = 1000
+#RmssService.ReadMsgQueueSize = 5000
+
+# --------------------------------------------------------------------
+# - Integrity configuration
+# --------------------------------------------------------------------
+#IntegrityService.ISCore_DoCheck = 1
+
+# --------------------------------------------------------------------
+# HostAgent
+# --------------------------------------------------------------------
+HostAgent.RegfSvcList_1 = RmssService, UPnPService, upnp
+HostAgent.RegfCall_1_1  = EVNT upnp NAME=STARTUP;
+HostAgent.RegfSvcList_2 = UPnPService, NetworkingService, upnp
+HostAgent.RegfCall_2_1  = EVNT UPnPService NAME=STARTUP;
+HostAgent.Port=2012
+
+# --------------------------------------------------------------------
+# RmssService
+# --------------------------------------------------------------------
+RmssService.DeviceName=/dev/scp_nws
+
+# ====================================================================
+# [ NetworkingService ]
+# ====================================================================
+# WLAN
+NetworkingService_0.type = wlan
+NetworkingService_0_ap.ifname = uap0
+NetworkingService_0_ap.mountdir = /lib/dll/devnp-mv8688uap.so
+NetworkingService_0_ap.mounttype = io-pkt
+NetworkingService_0_ap.driver = mv8688uapdrv
+NetworkingService_0_ap.mountparam = irq=13,dma=0x104,fwpath=/lib/dll,clock=25M,resetmask=0
+#if connected to SD1 
+#NetworkingService_0_ap.mountparam = irq=13,dma=0x105,smem=0xc0440000,fwpath=/lib/dll,clock=25M
+
+# IP
+NetworkingService_uap0.ipaddress = 192.168.1.1
+NetworkingService_uap0.ipnetmask = 255.255.255.0
+NetworkingService_uap0.ipmode = static
+NetworkingService_uap0.dhcpsrange = 192.168.1.100, 192.168.1.110
+NetworkingService.statisticsinterval = 2000
+
+# dhcpd
+NetworkingService.dhcpdlease = /mnt/phonedb
+NetworkingService.dhcpdconf = /mnt/phonedb
+NetworkingService.dnsservers = 192.168.0.1, 8.8.8.8
+NetworkingService.dhcpsmaxleasetime = 48000
+NetworkingService.dhcpsdefaultleasetime = 36000
+
+#firewall/nat
+NetworkingService.pfconf = /etc/ppp/pf.conf
+
+# hostapd
+NetworkingService_uap0.configpath = /etc/ppp/hostapd.conf
+
+# --------------------------------------------------------------------
+# UPnPService
+# --------------------------------------------------------------------
+UPnPService.MaxNumberServers=4
+UPnPService.InterfaceName=uap0

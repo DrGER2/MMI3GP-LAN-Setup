@@ -1,0 +1,12 @@
+#!/bin/sh
+# * (c) Copyright  2008
+# * Company        Harman/Becker Automotive Systems GmbH
+
+# 20221209 drger; PPP is deprecated permanently -- noop
+
+waitfor /dev/shmem/networkscript.semaphore 6
+rm /dev/shmem/networkscript.semaphore
+
+# NO-OP
+
+touch /dev/shmem/networkscript.semaphore
